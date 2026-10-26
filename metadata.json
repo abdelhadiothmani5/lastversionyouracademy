@@ -1,0 +1,8 @@
+{
+  "name": "Your Academy — أكاديمية Your Academy",
+  "description": "الموقع الرسمي لأكاديمية Your Academy - تعليم اللغات الحية (الإنجليزية، الفرنسية، الإسبانية، الألمانية) والدعم المدرسي للأقسام النهائية في المقر الرئيسي بعين الدفلى وفروع البليدة وخميس مليانة والعطاف.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
