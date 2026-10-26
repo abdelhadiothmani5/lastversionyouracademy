@@ -81,7 +81,7 @@ export const BookDetailModal: React.FC<BookDetailModalProps> = ({
           </div>
 
           {/* Modal Body */}
-          <div className="p-6 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+          <div className="p-4 sm:p-8 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-8 items-start">
             
             {/* Book Cover Visual (Prominent authentic presentation) */}
             <div className="md:col-span-5 flex flex-col items-center">

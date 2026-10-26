@@ -95,7 +95,7 @@ export const SocialMediaSection: React.FC<SocialMediaSectionProps> = ({ id = 'so
       whileInView="visible"
       viewport={{ once: true, amount: 0.15 }}
       variants={sectionVariants}
-      className="relative py-14 sm:py-20 scroll-mt-24 overflow-hidden"
+      className="relative py-14 sm:py-20 scroll-mt-36 sm:scroll-mt-40 overflow-hidden"
     >
       {/* =========================================================================
           8. SUBTLE LIVE GOLDEN ATMOSPHERE

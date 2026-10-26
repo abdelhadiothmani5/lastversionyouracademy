@@ -91,7 +91,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      <div className="relative w-full max-w-xl my-auto rounded-3xl bg-white dark:bg-[#0F141F] border-2 border-amber-500/50 dark:border-amber-400/40 p-6 sm:p-8 shadow-2xl text-start transition-colors max-h-[92vh] overflow-y-auto">
+      <div className="relative w-full max-w-xl my-auto rounded-3xl bg-white dark:bg-[#0F141F] border-2 border-amber-500/50 dark:border-amber-400/40 p-4 sm:p-8 shadow-2xl text-start transition-colors max-h-[92vh] overflow-y-auto">
         
         {/* Close Button */}
         <button

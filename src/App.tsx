@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { SplashScreen } from './components/SplashScreen';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { RegistrationModal } from './components/RegistrationModal';
 import { MobileStickyBar } from './components/MobileStickyBar';
 import { ScrollToTop } from './components/ScrollToTop';
+import { MobileResponsiveTester } from './components/MobileResponsiveTester';
 
 // Dedicated Routed Pages
 import { HomePage } from './pages/HomePage';
@@ -50,9 +50,6 @@ function AcademyApp() {
       {/* Scroll restoration upon page change */}
       <ScrollToTop />
 
-      {/* Website Entry / Splash Screen */}
-      <SplashScreen />
-
       {/* Navigation Header with multi-page routes */}
       <Navbar onOpenRegister={handleOpenRegister} />
 
@@ -92,6 +89,9 @@ function AcademyApp() {
         onClose={handleCloseRegister}
         preselectedProgram={selectedProgram}
       />
+
+      {/* Mobile Responsiveness & Overflow Inspector Utility (320px – 430px) */}
+      <MobileResponsiveTester />
     </div>
   );
 }

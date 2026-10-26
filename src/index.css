@@ -50,6 +50,17 @@
     filter: none !important;
   }
 
+  /* Prevent section headings and targets from being obscured after category navigation beneath fixed/sticky mobile header */
+  [id], section, h1, h2, h3 {
+    scroll-margin-top: calc(134px + env(safe-area-inset-top, 0px));
+  }
+
+  @media (min-width: 1024px) {
+    [id], section, h1, h2, h3 {
+      scroll-margin-top: calc(90px + env(safe-area-inset-top, 0px));
+    }
+  }
+
   /* Prevent iOS Safari auto-zoom on input focus */
   @media screen and (max-width: 768px) {
     input, select, textarea {

@@ -144,7 +144,7 @@ export const AcademyBooksSection: React.FC<AcademyBooksSectionProps> = ({
   return (
     <section
       id="academy-books"
-      className="py-10 sm:py-16 relative overflow-hidden scroll-mt-28 bg-[#070A12] dark:bg-[#070A12] text-white"
+      className="py-10 sm:py-16 relative overflow-hidden scroll-mt-36 sm:scroll-mt-40 bg-[#070A12] dark:bg-[#070A12] text-white"
     >
       {/* Subtle brand ambient lighting */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden="true">

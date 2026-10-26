@@ -18,7 +18,7 @@ export const NotFoundPage: React.FC = () => {
   const BackArrow = isRtl ? ArrowRight : ArrowLeft;
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-20 text-center">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 pt-[calc(156px+env(safe-area-inset-top,0px))] pb-20 text-center">
       <div className="max-w-lg mx-auto space-y-6">
         <div className="w-24 h-24 rounded-3xl bg-amber-500/20 text-amber-500 border border-amber-500/40 flex items-center justify-center mx-auto shadow-xl">
           <span className="text-4xl font-black font-sora">404</span>

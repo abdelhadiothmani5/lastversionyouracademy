@@ -122,7 +122,7 @@ export const HomePage: React.FC<HomePageProps> = ({ onOpenRegister }) => {
 
       {/* 8. Bottom Registration Call To Action */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="rounded-3xl bg-amber-500 text-black p-8 sm:p-12 text-center space-y-6 shadow-2xl relative overflow-hidden">
+        <div className="rounded-3xl bg-amber-500 text-black p-5 xs:p-7 sm:p-12 text-center space-y-6 shadow-2xl relative overflow-hidden">
           <div className="space-y-3 max-w-2xl mx-auto">
             <span className="inline-block px-3 py-1 rounded-full bg-black text-amber-400 text-xs font-black uppercase font-sora">
               {CAMPAIGN_MOTTO.year}

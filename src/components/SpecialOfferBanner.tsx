@@ -15,7 +15,7 @@ export const SpecialOfferBanner: React.FC<SpecialOfferBannerProps> = ({ onOpenRe
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Main Golden-Black Promo Box */}
-        <div className="relative rounded-3xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-black p-8 sm:p-10 lg:p-12 shadow-2xl overflow-hidden">
+        <div className="relative rounded-3xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-black p-4 xs:p-6 sm:p-10 lg:p-12 shadow-2xl overflow-hidden">
           
           {/* Subtle Graphic background patterns */}
           <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[radial-gradient(#000_1.5px,transparent_1.5px)] [background-size:20px_20px]" />
@@ -81,7 +81,7 @@ export const SpecialOfferBanner: React.FC<SpecialOfferBannerProps> = ({ onOpenRe
             </div>
 
             {/* Instant Action Box */}
-            <div className="lg:col-span-4 bg-black text-white p-6 sm:p-7 rounded-3xl shadow-xl space-y-5 text-center">
+            <div className="lg:col-span-4 bg-black text-white p-4 sm:p-7 rounded-3xl shadow-xl space-y-4 sm:space-y-5 text-center">
               
               <div className="space-y-1">
                 <span className="text-amber-400 text-xs font-black uppercase tracking-wider font-sora">

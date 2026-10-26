@@ -40,33 +40,49 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [hasMounted, setHasMounted] = useState(false);
 
+  // Coordinated auto-hiding mobile header + category navigation
   const [navVisible, setNavVisible] = useState(true);
   const lastScrollY = useRef(0);
-  const scrollThreshold = 12;
+  const isCategorySwipingRef = useRef(false);
+  const touchStartPos = useRef({ x: 0, y: 0 });
 
+  // Subtle entrance transition on initial load
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // Direction-aware scroll tracking optimized for iPhone Safari
   useEffect(() => {
     let ticking = false;
 
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const currentY = window.scrollY;
-          const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          // If the customer is actively swiping horizontally on the category bar, ignore scroll events
+          if (isCategorySwipingRef.current) {
+            ticking = false;
+            return;
+          }
 
-          // Top of page: always keep both header & categories visible
-          if (currentY <= 0) {
+          const currentY = window.scrollY;
+          const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+
+          // Top of page: always keep both header & categories visible (with iOS bounce guard)
+          if (currentY <= 15) {
             setNavVisible(true);
             setIsScrolled(false);
-            lastScrollY.current = 0;
+            lastScrollY.current = Math.max(0, currentY);
             ticking = false;
             return;
           }
 
           setIsScrolled(currentY > 20);
 
-          // Ignore elastic overscroll at bottom of document in iOS Safari
-          if (currentY >= maxScroll) {
+          // Ignore elastic overscroll bounce at bottom of document in iOS Safari
+          if (currentY >= maxScroll - 15) {
+            lastScrollY.current = currentY;
             ticking = false;
             return;
           }
@@ -81,15 +97,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
 
           const diff = currentY - lastScrollY.current;
 
-          // Ignore micro-scrolls under threshold to prevent flickering on touch devices
-          if (Math.abs(diff) >= scrollThreshold) {
-            if (diff > 0 && currentY > 60) {
-              // Scrolling down beyond threshold: smoothly hide
-              setNavVisible(false);
-            } else if (diff < 0) {
-              // Deliberate upward scroll: reveal immediately
-              setNavVisible(true);
-            }
+          // Deliberate upward scroll: reveal immediately so customer can access categories
+          if (diff < -6) {
+            setNavVisible(true);
+            lastScrollY.current = currentY;
+          }
+          // Deliberate downward scroll: smoothly hide both to maximize product viewing space
+          else if (diff > 8 && currentY > 50) {
+            setNavVisible(false);
             lastScrollY.current = currentY;
           }
 
@@ -102,6 +117,35 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [mobileMenuOpen]);
+
+  // Touch event handlers for category bar to ignore horizontal swipes
+  const handleCategoryTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 1) {
+      touchStartPos.current = {
+        x: e.touches[0].clientX,
+        y: e.touches[0].clientY,
+      };
+      isCategorySwipingRef.current = false;
+    }
+  };
+
+  const handleCategoryTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 1) {
+      const deltaX = Math.abs(e.touches[0].clientX - touchStartPos.current.x);
+      const deltaY = Math.abs(e.touches[0].clientY - touchStartPos.current.y);
+      // Horizontal swipe detected on category bar -> lock nav visibility
+      if (deltaX > 4 && deltaX > deltaY) {
+        isCategorySwipingRef.current = true;
+      }
+    }
+  };
+
+  const handleCategoryTouchEnd = () => {
+    // Keep lock active briefly to prevent inertial post-touch vertical drift
+    setTimeout(() => {
+      isCategorySwipingRef.current = false;
+    }, 150);
+  };
 
   // When route changes, reveal navigation unit immediately
   useEffect(() => {
@@ -447,11 +491,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
         </div>
 
         {/* MOBILE & TABLET LAYOUT (< lg: 1024px) */}
-        {/* Prominent centered logo (190-240 CSS px) flanked by hamburger on start and theme/register on end */}
-        <div className="flex lg:hidden items-center justify-between px-3 sm:px-5 relative w-full gap-2">
+        {/* Prominent centered logo (190-240 CSS px) perfectly centered between hamburger on start and theme toggle on end */}
+        <div className="flex lg:hidden items-center justify-between px-3 sm:px-4 relative w-full h-[52px]">
           
-          {/* Start: Hamburger Drawer Toggle */}
-          <div className="flex items-center shrink-0">
+          {/* Start: Hamburger Drawer Toggle (Fixed 40px width container for perfect centering symmetry) */}
+          <div className="w-10 flex items-center justify-start shrink-0">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="h-10 w-10 p-2 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-900 dark:hover:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 text-zinc-900 dark:text-white flex items-center justify-center active:scale-95 transition-all touch-manipulation shrink-0"
@@ -464,51 +508,60 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
             </button>
           </div>
 
-          {/* Center: Prominent Centered Logo with Signature Soft Ambient Red Glow (190-240 CSS px) */}
+          {/* Center: Prominent Centered Logo with Signature Restrained Ambient Red Glow (190-240 CSS px when viewport permits) */}
           <div className="flex-1 flex justify-center items-center min-w-0 px-1 relative">
-            <div className="absolute w-28 h-8 bg-red-600/15 dark:bg-red-500/20 rounded-full blur-xl pointer-events-none -z-10" />
+            {/* Signature Soft Red Ambient Glow & Translucent Red Bubble (Behind content, pointer-events-none) */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none -z-10 overflow-hidden" aria-hidden="true">
+              <div className="w-44 h-8 bg-red-600/15 dark:bg-red-500/20 rounded-full blur-xl" />
+              <div className="absolute -top-1 w-6 h-6 rounded-full bg-red-500/15 blur-sm motion-safe:animate-pulse" />
+              <div className="absolute -bottom-1 -left-2 w-4 h-4 rounded-full bg-red-500/15 blur-xs" />
+            </div>
+
             <Link
               to="/"
-              className="flex items-center justify-center gap-2 text-center group py-0.5 w-auto max-w-[240px] min-w-[190px]"
+              className={`flex items-center justify-center gap-2 text-center group py-0.5 w-[195px] xs:w-[215px] sm:w-[235px] max-w-full min-w-0 select-none transition-all duration-500 ease-out ${
+                hasMounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-2'
+              } motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:transform-none`}
               id="mobile-nav-logo"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setNavVisible(true);
+              }}
             >
               <img
                 src={isDark ? '/assets/your-academy-symbol-dark.png' : '/assets/your-academy-symbol-light.png'}
                 alt="Your Academy"
-                className="w-8 h-8 sm:w-9 sm:h-9 object-contain group-hover:scale-105 transition-transform shrink-0 select-none"
+                className="w-8 h-8 xs:w-9 xs:h-9 object-contain group-hover:scale-105 transition-transform shrink-0 select-none"
                 width="36"
                 height="36"
               />
-              <div className="flex flex-col items-start min-w-0">
-                <span className="font-black text-sm sm:text-base text-zinc-950 dark:text-white tracking-tight font-sora leading-none truncate">
+              <div className="flex flex-col items-start min-w-0 text-start overflow-hidden">
+                <span className="font-black text-sm xs:text-base text-zinc-950 dark:text-white tracking-tight font-sora leading-none truncate max-w-full">
                   YOUR ACADEMY
                 </span>
-                <span className="text-[10px] sm:text-xs text-amber-700 dark:text-amber-400 font-bold leading-tight truncate mt-0.5">
+                <span className="text-[10px] xs:text-xs text-amber-700 dark:text-amber-400 font-bold leading-tight truncate mt-0.5 max-w-full">
                   {language === 'ar' ? ACADEMY_INFO.academyNameAr : t.common.academySubtitle}
                 </span>
               </div>
             </Link>
           </div>
 
-          {/* End: Theme Toggle & Quick Register CTA */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <ThemeToggle variant="icon" className="h-9 w-9 sm:h-10 sm:w-10 shrink-0" />
-            <button
-              onClick={() => onOpenRegister()}
-              className="h-9 sm:h-10 px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-black font-black text-xs sm:text-sm shadow-xs active:scale-95 transition-all flex items-center justify-center gap-1 whitespace-nowrap touch-manipulation shrink-0"
-              id="mobile-register-quick"
-            >
-              <Sparkles className="w-3.5 h-3.5 fill-black shrink-0 hidden xs:inline" />
-              <span>{t.common.registerNow}</span>
-            </button>
+          {/* End: Theme Toggle (Fixed 40px width container for perfect centering symmetry) */}
+          <div className="w-10 flex items-center justify-end shrink-0">
+            <ThemeToggle variant="icon" className="h-10 w-10 shrink-0" />
           </div>
         </div>
       </nav>
 
       {/* Mobile Horizontal Rectangular Category Navigation (One coordinated unit with header) */}
       <div
-        className="lg:hidden w-full overflow-x-auto scrollbar-none border-b border-zinc-200/70 dark:border-white/10 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md px-3 py-1.5 touch-pan-x"
+        onTouchStart={handleCategoryTouchStart}
+        onTouchMove={handleCategoryTouchMove}
+        onTouchEnd={handleCategoryTouchEnd}
+        onTouchCancel={handleCategoryTouchEnd}
+        className={`lg:hidden w-full overflow-x-auto scrollbar-none border-b border-zinc-200/70 dark:border-white/10 bg-white/95 dark:bg-[#0B0F17]/95 backdrop-blur-md px-3 py-1.5 touch-pan-x transition-opacity duration-500 delay-75 ease-out ${
+          hasMounted ? 'opacity-100' : 'opacity-0'
+        } motion-reduce:transition-none motion-reduce:opacity-100`}
         style={{ WebkitOverflowScrolling: 'touch', overscrollBehaviorX: 'contain' }}
         role="navigation"
         aria-label="Category navigation"
@@ -518,15 +571,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenRegister }) => {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => {
+                setNavVisible(true);
+              }}
               className={({ isActive }) =>
-                `px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center justify-center shrink-0 border select-none ${
+                `px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all duration-150 flex items-center justify-center shrink-0 border select-none relative ${
                   isActive
                     ? 'bg-amber-500 text-black border-amber-500 shadow-xs font-extrabold'
                     : 'bg-zinc-100/90 dark:bg-zinc-900/90 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-200/80 dark:hover:bg-zinc-800'
                 }`
               }
             >
-              {item.name}
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <span
+                      className="absolute -bottom-1 inset-x-2 h-1 bg-red-500/25 blur-xs rounded-full pointer-events-none -z-10"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span>{item.name}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </div>
